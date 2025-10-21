@@ -1,7 +1,6 @@
 .DS_Store
 .vscode/
 secret
-*.tgz
 helm-chart/test.yaml
 helm-chart/templates/test.yaml
 todo.md
