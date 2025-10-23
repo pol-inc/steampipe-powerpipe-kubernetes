@@ -22,4 +22,4 @@ if [ -f "init-db.sh" ]; then
 fi
 
 echo "Starting Steampipe:"
-./steampipe service start --foreground
+./steampipe service start --database-listen network --foreground
