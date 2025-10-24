@@ -14,6 +14,14 @@ fi
 echo "Updating Mods..."
 ./powerpipe mod update > /dev/null
 
+if [ -n "$POWERPIPE_DATABASE" ]; then
+    if grep -q '^  database = ' mod.pp; then
+        sed -i.bak "s|^  database = .*|  database = \"$POWERPIPE_DATABASE\"|" mod.pp
+    else
+        sed -i.bak "/^  require {/i \\  database = \"$POWERPIPE_DATABASE\"" mod.pp
+    fi
+fi
+
 echo "Mod List:"
 ./powerpipe mod list
 
