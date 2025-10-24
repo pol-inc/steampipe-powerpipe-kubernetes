@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.source https://github.com/oguzhan-yilmaz/steampip
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
-ARG POWERPIPE_VERSION
+ARG POWERPIPE_VERSION=v1.4.1
 
 # space separated list of plugins at build time
 ARG PRE_INSTALL_MODS="github.com/turbot/steampipe-mod-kubernetes-insights github.com/turbot/steampipe-mod-kubernetes-compliance"
@@ -37,6 +37,7 @@ RUN POWERPIPE_BINARY_DOWNLOAD_URL="https://github.com/turbot/powerpipe/releases/
     && if [ -n "${PRE_INSTALL_MODS}" ]; then powerpipe mod install ${PRE_INSTALL_MODS} > /dev/null; fi
 
 COPY *.sh .
+COPY *.ppc .
 
 EXPOSE 9033
 
