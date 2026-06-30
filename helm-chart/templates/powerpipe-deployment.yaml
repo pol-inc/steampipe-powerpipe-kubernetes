@@ -1,3 +1,11 @@
+{{- /*
+  replicaCount 0 => omit the Deployment entirely so ArgoCD prunes it (this is how
+  ofuton "sleeps" the app), instead of rendering replicas:0 — which ArgoCD ignores
+  via ignoreDifferences (/spec/replicas) and would never reconcile. No PVC/StatefulSet
+  in this chart, so pruning the Deployment loses no persistent data; wake
+  (replicaCount back to >0) recreates it.
+*/}}
+{{- if gt (int .Values.powerpipe.replicaCount) 0 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,3 +72,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
