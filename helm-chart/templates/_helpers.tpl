@@ -121,7 +121,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "powerpipe.serviceAccountName" -}}
-default
+{{- .Values.powerpipe.serviceAccountName | default "default" -}}
 {{- end }}
 
 
@@ -181,5 +181,22 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "steampipe.serviceAccountName" -}}
-default
+{{- .Values.steampipe.serviceAccountName | default "default" -}}
+{{- end }}
+
+
+{{/*
+Database password handling. With global.existingSecret.name set, the chart
+renders no password and the deployments read it via secretKeyRef.
+*/}}
+{{- define "steampipe.existingSecretName" -}}
+{{- (.Values.global.existingSecret | default dict).name | default "" -}}
+{{- end }}
+
+{{- define "steampipe.existingSecretKey" -}}
+{{- (.Values.global.existingSecret | default dict).key | default "password" -}}
+{{- end }}
+
+{{- define "steampipe.databasePassword" -}}
+{{- required "set global.steampipeDatabasePassword, or global.existingSecret.name" .Values.global.steampipeDatabasePassword -}}
 {{- end }}

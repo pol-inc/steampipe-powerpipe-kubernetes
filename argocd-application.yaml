@@ -29,9 +29,11 @@ spec:
       # # Values file as block file. This takes precedence over values
       valuesObject:
         global:
-          # steampipeDatabasePassword will be used to set the Steampipe DB password
-          # and powerpipe DB Connection URL will get this value from here 
-          steampipeDatabasePassword: "1pjVZE4bYBkIGWpNTOgl"
+          # Prefer existingSecret over a password in Git. Must be URL-safe.
+          steampipeDatabasePassword: "CHANGE-ME"
+          # existingSecret:
+          #   name: steampipe-db
+          #   key: password
 
           # Enable to have Read Only access to the deployed cluster
           steampipeCreateReadOnlyServiceAccount: true

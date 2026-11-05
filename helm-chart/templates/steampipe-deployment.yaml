@@ -33,6 +33,19 @@ spec:
               name: {{ include "steampipe.fullname" . }}-cm-env-vars
           - secretRef:
               name: {{ include "steampipe.fullname" . }}-secret-env-vars
+          {{- with include "steampipe.existingSecretName" . }}
+          env:
+            - name: STEAMPIPE_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ include "steampipe.existingSecretKey" $ }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ include "steampipe.existingSecretKey" $ }}
+          {{- end }}
           securityContext:
             {{- toYaml .Values.steampipe.securityContext | nindent 12 }}
           image: "{{ .Values.steampipe.image.repository }}:{{ .Values.steampipe.image.tag | default .Chart.AppVersion }}"
