@@ -1,7 +1,16 @@
 global:
-  # steampipeDatabasePassword will be used to set the Steampipe DB password
-  # and powerpipe DB Connection URL will get this value from here 
-  steampipeDatabasePassword: "1pjVZE4bYBkIGWpNTOgl"
+  # Password for the Steampipe database; powerpipe's POWERPIPE_DATABASE URL is
+  # built from it. There is no default: set it, or (preferred) set
+  # existingSecret.name so no password is rendered by this chart at all.
+  # Must be URL-safe (it is embedded in a postgres:// URL).
+  steampipeDatabasePassword: ""
+
+  # Name and key of an existing Secret (same namespace) holding the password.
+  # When set, the chart renders no password and both deployments read it
+  # through secretKeyRef.
+  existingSecret:
+    name: ""
+    key: "password"
 
   # Enable to have Read Only access to the deployed cluster
   steampipeCreateReadOnlyServiceAccount: true
@@ -90,6 +99,11 @@ steampipe:
 
   imagePullSecrets: []
 
+  # ServiceAccount the steampipe pod runs as (the kubernetes plugin uses its
+  # token). Must already exist; RBAC for it is up to you unless
+  # global.steampipeCreateReadOnlyServiceAccount is true.
+  serviceAccountName: "default"
+
 
   podAnnotations: {}
 
@@ -149,6 +163,16 @@ powerpipe:
     tag: "latest"
 
   imagePullSecrets: []
+
+  # ServiceAccount for the powerpipe pod. Powerpipe talks to the Steampipe
+  # database only, so it does not need a Kubernetes API token.
+  serviceAccountName: "default"
+  automountServiceAccountToken: true
+
+  # Extra volumes / mounts for the powerpipe container (e.g. a .ppc connection
+  # file from a Secret).
+  extraVolumes: []
+  extraVolumeMounts: []
 
   podAnnotations: {}
 

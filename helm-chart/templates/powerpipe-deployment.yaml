@@ -22,6 +22,8 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "powerpipe.serviceAccountName" . }}
+      automountServiceAccountToken: {{ if hasKey .Values.powerpipe "automountServiceAccountToken" }}{{ .Values.powerpipe.automountServiceAccountToken }}{{ else }}true{{ end }}
       securityContext:
         {{- toYaml .Values.powerpipe.podSecurityContext | nindent 8 }}
       containers:
@@ -35,6 +37,21 @@ spec:
               name: {{ include "powerpipe.fullname" . }}-cm-env-vars
           - secretRef:
               name: {{ include "powerpipe.fullname" . }}-secret-env-vars
+          {{- with include "steampipe.existingSecretName" . }}
+          env:
+            - name: STEAMPIPE_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ include "steampipe.existingSecretKey" $ }}
+            # Kubernetes expands $(STEAMPIPE_DATABASE_PASSWORD) from the entry above.
+            - name: POWERPIPE_DATABASE
+              value: "postgres://steampipe:$(STEAMPIPE_DATABASE_PASSWORD)@{{ include "steampipe.fullname" $ }}:9193/steampipe"
+          {{- end }}
+          {{- with .Values.powerpipe.extraVolumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.powerpipe.containerPort }}
@@ -52,6 +69,10 @@ spec:
           {{- else }}
           resources: {}
           {{- end }}
+      {{- with .Values.powerpipe.extraVolumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.powerpipe.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

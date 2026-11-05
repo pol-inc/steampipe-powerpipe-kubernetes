@@ -23,6 +23,9 @@ RUN apt-get update -y \
     && groupadd -g 11234 powerpipe \
     && useradd -m -u 11234 -g powerpipe powerpipe
 
+# CVE-2026-111497: pick up the fixed libbrotli1 until the base image carries it.
+RUN apt-get update && apt-get install -y --no-install-recommends --only-upgrade libbrotli1 && rm -rf /var/lib/apt/lists/*
+
 USER powerpipe
 
 WORKDIR /home/powerpipe
@@ -37,7 +40,6 @@ RUN POWERPIPE_BINARY_DOWNLOAD_URL="https://github.com/turbot/powerpipe/releases/
     && if [ -n "${PRE_INSTALL_MODS}" ]; then powerpipe mod install ${PRE_INSTALL_MODS} > /dev/null; fi
 
 COPY *.sh .
-COPY *.ppc .
 
 EXPOSE 9033
 
